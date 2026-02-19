@@ -6,19 +6,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --danger: #ef4444; --bg: #ffffff; --text-main: #1e293b; --text-sub: #64748b; --warn: #f59e0b; }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 10px; background: var(--bg); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; overflow: hidden; }
+        
+        /* Default size for the tool */
+        body { 
+            font-family: 'Inter', sans-serif; margin: 0; padding: 10px; 
+            background: var(--bg); color: var(--text-main); 
+            display: flex; flex-direction: column; 
+            min-height: 450px; /* Purana small size */
+            box-sizing: border-box; 
+        }
+
         .header { font-weight: 700; font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px; color: var(--primary); display: flex; justify-content: space-between; }
-        .instruction { font-size: 13px; line-height: 1.5; margin: 10px 0; flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+        .instruction { font-size: 13px; line-height: 1.5; margin: 10px 0; flex-grow: 1; }
         .opt-grid { display: grid; gap: 8px; margin-top: auto; }
         .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; cursor: pointer; text-align: left; font-size: 12px; font-weight: 500; }
-        .opt-btn:hover { background: #eff6ff; border-color: var(--primary); color: var(--primary); }
         .next-btn { width: 100%; margin-top: 10px; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .next-btn:disabled { background: #cbd5e1; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px; box-sizing: border-box; }
-        .announcement-box { width: 100%; max-height: 85vh; background: #fffbeb; border: 2px solid var(--warn); border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
-        .ann-header { background: var(--warn); color: white; padding: 12px; font-weight: 700; font-size: 14px; text-transform: uppercase; }
-        .ann-scroll-area { padding: 15px; overflow-y: auto; text-align: left; color: #92400e; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
-        .ann-footer { padding: 10px; background: #fef3c7; border-top: 1px solid #fde68a; }
+
+        /* DYNAMIC OVERLAY: Yeh screen size cover karega aur content ke hisab se stretch hoga */
+        #overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: white; z-index: 1000; display: flex; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            padding: 15px; box-sizing: border-box; overflow-y: auto;
+        }
+
+        .announcement-box { 
+            width: 100%; background: #fffbeb; border: 2px solid var(--warn); 
+            border-radius: 12px; display: flex; flex-direction: column; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .ann-header { background: var(--warn); color: white; padding: 12px; font-weight: 700; font-size: 14px; }
+        .ann-body { padding: 15px; text-align: left; color: #92400e; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+        .ann-footer { padding: 10px; background: #fef3c7; }
+
         .status-icon { font-size: 40px; margin-bottom: 10px; }
         .status-title { font-size: 18px; font-weight: 700; color: var(--danger); }
         .reset-link { font-size: 11px; color: var(--primary); text-decoration: underline; cursor: pointer; background: none; border: none; margin-top: 15px; }
@@ -29,7 +50,7 @@
 <div id="overlay">
     <div id="status-content">
         <div class="status-icon">🔄</div>
-        <div class="status-title" style="color: var(--primary);">Authenticating</div>
+        <div class="status-title" style="color: var(--primary);">Loading...</div>
     </div>
 </div>
 
@@ -38,17 +59,16 @@
     <span id="step-id" style="color: var(--text-sub); font-size: 10px;">v1.0</span>
 </div>
 
-<div id="main-content" style="display: flex; flex-direction: column; height: 100%;">
-    <div class="instruction" id="instr-text">Loading...</div>
+<div id="main-content" style="display: flex; flex-direction: column; flex-grow: 1;">
+    <div class="instruction" id="instr-text">Checking Access...</div>
     <div id="opt-container" class="opt-grid"></div>
     <div id="nav-area" style="display:none; margin-top: 10px;">
-        <label style="font-size: 11px; cursor: pointer; display: block; margin-bottom: 5px;"><input type="checkbox" id="ack-check"> I have understood this step.</label>
+        <label style="font-size: 11px; cursor: pointer;"><input type="checkbox" id="ack-check"> I have understood.</label>
         <button class="next-btn" id="next-btn" disabled onclick="goNext()">Continue</button>
     </div>
 </div>
 
 <script>
-    // --- APNA NAYA URL YAHAN DALEIN ---
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycby2n0XsgbNNMK8hU4aP5pRLgPc18DO04f67z_u94wxU9IGN-ExDz0I2IkgFhYxQyhDl/exec";
     const DOMAIN = "@v5global.co.in";
 
@@ -57,23 +77,15 @@
 
     function logout() { localStorage.clear(); location.reload(); }
 
-    // FIXED: Announcement Dismiss + Tracking
     async function ackUpdate(version) {
         const email = localStorage.getItem("user_email");
-        try {
-            // Background mein log bhejna
-            fetch(SHEET_API_URL, {
-                method: "POST",
-                mode: 'no-cors',
-                body: JSON.stringify({ email: email, action: "ACK_UPDATE", version: version })
-            });
-            // Instant memory update taaki popup gayab ho jaye
-            localStorage.setItem("acked_version", version);
-            document.getElementById('overlay').style.display = 'none';
-            await loadData(); // Reload content
-        } catch(e) {
-            console.error("Ack Error", e);
-        }
+        fetch(SHEET_API_URL, {
+            method: "POST", mode: 'no-cors',
+            body: JSON.stringify({ email: email, action: "ACK_UPDATE", version: version })
+        });
+        localStorage.setItem("acked_version", version);
+        document.getElementById('overlay').style.display = 'none';
+        location.reload(); 
     }
 
     window.onload = async () => {
@@ -97,14 +109,12 @@
             const rawData = await res.json();
             const userEmail = localStorage.getItem("user_email");
 
-            // Auth Check
             const userEntry = rawData.users.find(u => u.email === userEmail);
             if (!userEntry || userEntry.status.toLowerCase() !== "active") {
                 showStatus("ACCESS REVOKED", "Contact POC.", "🚫");
                 return;
             }
 
-            // Announcement Check
             const lastAcked = localStorage.getItem("acked_version");
             if (rawData.latestVersion !== lastAcked && rawData.latestVersion !== "1.0") {
                 showAnnouncement(rawData.latestVersion, rawData.announcement);
@@ -123,7 +133,7 @@
         document.getElementById('status-content').innerHTML = `
             <div class="announcement-box">
                 <div class="ann-header">⚠️ URGENT UPDATE (v${ver})</div>
-                <div class="ann-scroll-area">${msg}</div>
+                <div class="ann-body">${msg}</div>
                 <div class="ann-footer">
                     <button onclick="ackUpdate('${ver}')" style="width:100%; padding:12px; background:var(--warn); color:white; border:none; border-radius:6px; font-weight:700; cursor:pointer;">I HAVE READ & UNDERSTOOD</button>
                 </div>
