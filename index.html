@@ -2,288 +2,115 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knowledge Hub Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Knowledge Hub Mini</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
-            --text: #1e293b;
-            --white: #ffffff;
-            --border: #e2e8f0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            box-sizing: border-box;
-        }
-
-        /* Header Styling */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 20px;
-        }
-
-        .version-badge {
-            font-size: 10px;
-            background: #e2e8f0;
-            padding: 2px 8px;
-            border-radius: 10px;
-            color: #64748b;
-        }
-
-        /* Main Card */
-        .card {
-            background: var(--white);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .step-badge {
-            display: inline-block;
-            background: #dbeafe;
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        h2 {
-            font-size: 18px;
-            margin: 15px 0;
-            line-height: 1.4;
-        }
-
-        .instruction-box {
-            font-size: 15px;
-            line-height: 1.6;
-            color: #475569;
-            margin-bottom: 20px;
-        }
-
-        /* Options Grid */
-        .options-grid {
-            display: grid;
-            gap: 10px;
-            margin-top: auto;
-        }
-
-        .opt-btn {
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--white);
-            cursor: pointer;
-            text-align: left;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .opt-btn:hover {
-            background: #f1f5f9;
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        /* Acknowledge Lock */
-        .ack-container {
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff7ed;
-            border: 1px solid #ffedd5;
-            border-radius: 8px;
-        }
-
-        .next-btn {
-            width: 100%;
-            margin-top: 15px;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .next-btn:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
-        }
-
-        /* Overlay for blocked users */
-        #overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 10px; background: #fff; color: #1e293b; overflow-x: hidden; }
+        .header { font-weight: bold; font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px; color: #2563eb; display: flex; justify-content: space-between; }
+        .step-badge { font-size: 10px; background: #dbeafe; color: #2563eb; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+        .instruction { font-size: 13px; line-height: 1.5; margin: 10px 0; min-height: 50px; }
+        .opt-grid { display: grid; gap: 8px; }
+        .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; cursor: pointer; text-align: left; font-size: 12px; transition: 0.2s; }
+        .opt-btn:hover { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
+        .ack-section { margin-top: 10px; padding: 8px; background: #fff7ed; border-radius: 6px; font-size: 11px; }
+        .next-btn { width: 100%; margin-top: 10px; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .next-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: flex; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
 <body>
 
-<div id="overlay">
-    <h2 id="overlay-msg">Authenticating...</h2>
-</div>
+<div id="overlay">Checking Access...</div>
 
 <div class="header">
-    <span style="font-weight: 700; color: var(--primary);">PRO ASSISTANT</span>
-    <span class="version-badge" id="v-tag">v1.0</span>
+    <span>KNOWLEDGE HUB</span>
+    <span class="step-badge" id="step-id">v1.0</span>
 </div>
 
-<div class="card" id="app-card">
-    <div id="content-area">
-        <div class="step-badge" id="step-num">Step 1</div>
-        <h2 id="scenario-name">Loading...</h2>
-        <div class="instruction-box" id="instruction-text">
-            Please wait while we fetch the latest guidelines.
+<div id="main-content">
+    <div class="instruction" id="instr-text">Loading...</div>
+    <div class="opt-grid" id="opt-container"></div>
+    
+    <div id="nav-area" style="display:none;">
+        <div class="ack-section">
+            <label><input type="checkbox" id="ack-check"> Acknowledge and Proceed</label>
         </div>
-
-        <div class="options-grid" id="options-container"></div>
-
-        <div id="navigation-area">
-            <div class="ack-container" id="ack-box">
-                <label style="cursor: pointer; font-size: 14px;">
-                    <input type="checkbox" id="ack-check"> I have acknowledged this step.
-                </label>
-            </div>
-            <button class="next-btn" id="next-btn" disabled onclick="handleNext()">Next Step</button>
-        </div>
+        <button class="next-btn" id="next-btn" disabled onclick="goNext()">Next Step</button>
     </div>
 </div>
 
 <script>
-    // --- CONFIGURATION ---
-    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxJeVPtLxdVDp2gzV2vduUl_kKsNj-u1r3OTuvksBg6U4uukxCj5o2eg4HlazalVIXf/exec"; // <--- CHANGE THIS
-    const APP_VERSION = "1.0";
-
+    const SHEET_API_URL = "APNA_APPS_SCRIPT_URL_PASTE_KAREIN";
+    const DOMAIN = "@v5global.co.in";
     let masterData = [];
     let currentStep = 1;
 
-    // --- INITIALIZATION ---
     window.onload = async () => {
-        showOverlay("Checking Access...");
-        await checkCentralControl();
+        let email = localStorage.getItem("user_email");
+        if (!email || !email.endsWith(DOMAIN)) {
+            email = prompt("Enter your @v5global.co.in email:");
+            if (email && email.endsWith(DOMAIN)) {
+                localStorage.setItem("user_email", email);
+            } else {
+                document.body.innerHTML = "<h3>Access Denied! Official Email Required.</h3>";
+                return;
+            }
+        }
+        await loadData();
     };
 
-    async function checkCentralControl() {
+    async function loadData() {
         try {
-            const response = await fetch(SHEET_API_URL);
-            masterData = await response.json();
-            
-            // 1. Email Check (Central Control)
-            let userEmail = localStorage.getItem("user_email");
-            if (!userEmail) {
-                userEmail = prompt("Enter your official email:");
-                if (userEmail) localStorage.setItem("user_email", userEmail);
-            }
-
-            // Logic to find user in 'Users' sheet data (if integrated in API)
-            // For now, loading the data
-            hideOverlay();
+            const res = await fetch(SHEET_API_URL);
+            const rawData = await res.json();
+            masterData = Array.isArray(rawData) ? rawData : rawData.steps; 
+            document.getElementById('overlay').style.display = 'none';
             renderStep(1);
         } catch (e) {
-            showOverlay("Error connecting to Database. Check internet.");
+            document.getElementById('overlay').innerText = "Database Error!";
         }
     }
 
-    function renderStep(stepId) {
-        const data = masterData.find(item => item.step == stepId);
-        if (!data) {
-            finishFlow();
-            return;
-        }
+    function renderStep(sid) {
+        const data = masterData.find(d => d.step == sid);
+        if (!data) return finish();
 
-        document.getElementById('scenario-name').innerText = data.scenario || "Instruction";
-        document.getElementById('instruction-text').innerText = data.instruction;
-        document.getElementById('step-num').innerText = "Step " + data.step;
-        document.getElementById('v-tag').innerText = "v" + APP_VERSION;
+        currentStep = sid;
+        document.getElementById('instr-text').innerText = data.instruction;
+        document.getElementById('step-id').innerText = "Step " + sid;
+        
+        const optCont = document.getElementById('opt-container');
+        const navArea = document.getElementById('nav-area');
+        optCont.innerHTML = "";
+        document.getElementById('ack-check').checked = false;
+        document.getElementById('next-btn').disabled = true;
 
-        const optContainer = document.getElementById('options-container');
-        const navArea = document.getElementById('navigation-area');
-        const ackCheck = document.getElementById('ack-check');
-        const nextBtn = document.getElementById('next-btn');
-
-        optContainer.innerHTML = "";
-        ackCheck.checked = false;
-        nextBtn.disabled = true;
-
-        // --- BRANCHING LOGIC ---
         if (data.options && data.options.trim() !== "") {
-            navArea.style.display = "none"; // Hide next button if choices exist
-            const choices = data.options.split(',');
-            choices.forEach(choice => {
-                const [label, targetStep] = choice.split(':');
+            navArea.style.display = "none";
+            data.options.split(',').forEach(opt => {
+                const [label, next] = opt.split(':');
                 const btn = document.createElement('button');
                 btn.className = "opt-btn";
                 btn.innerText = label.trim();
-                btn.onclick = () => {
-                    currentStep = targetStep.trim();
-                    renderStep(currentStep);
-                };
-                optContainer.appendChild(btn);
+                btn.onclick = () => renderStep(next.trim());
+                optCont.appendChild(btn);
             });
         } else {
             navArea.style.display = "block";
         }
     }
 
-    function handleNext() {
-        currentStep++;
-        renderStep(currentStep);
-    }
-
     document.getElementById('ack-check').onchange = function() {
         document.getElementById('next-btn').disabled = !this.checked;
     };
 
-    function finishFlow() {
-        document.getElementById('content-area').innerHTML = `
-            <div style="text-align:center; padding:40px 10px;">
-                <h1 style="font-size:40px;">✅</h1>
-                <h2>Action Complete</h2>
-                <p>Process has been successfully followed. You can now close this assistant.</p>
-                <button class="next-btn" onclick="location.reload()">Start New Consult</button>
-            </div>
-        `;
+    function goNext() {
+        renderStep(parseInt(currentStep) + 1);
     }
 
-    function showOverlay(msg) {
-        const ov = document.getElementById('overlay');
-        ov.style.display = 'flex';
-        document.getElementById('overlay-msg').innerText = msg;
-    }
-
-    function hideOverlay() {
-        document.getElementById('overlay').style.display = 'none';
+    function finish() {
+        document.getElementById('main-content').innerHTML = "<div style='text-align:center; padding:20px;'><b>Process Finished!</b><br><br><button onclick='location.reload()' style='padding:8px;'>Restart</button></div>";
     }
 </script>
-
 </body>
 </html>
-
