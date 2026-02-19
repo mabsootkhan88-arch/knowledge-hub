@@ -11,13 +11,13 @@
         .opt-btn { padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9; cursor: pointer; text-align: left; }
         .next-btn { width: 100%; margin-top: 10px; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .next-btn:disabled { background: #ccc; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
 
 <div id="overlay">
-    <div id="status-text">Checking Access...</div>
+    <div id="status-text">Authenticating Advisor...</div>
 </div>
 
 <div class="header">
@@ -26,15 +26,16 @@
 </div>
 
 <div id="main-content">
-    <div class="instruction" id="instr-text">Loading...</div>
+    <div class="instruction" id="instr-text">Loading instructions...</div>
     <div class="opt-grid" id="opt-container"></div>
     <div id="nav-area" style="display:none; margin-top:10px;">
-        <label style="font-size: 12px;"><input type="checkbox" id="ack-check"> I Acknowledge</label>
+        <label style="font-size: 12px; cursor: pointer;"><input type="checkbox" id="ack-check"> I Acknowledge this step</label>
         <button class="next-btn" id="next-btn" disabled onclick="goNext()">Next Step</button>
     </div>
 </div>
 
 <script>
+    // 1. APNA NEW URL YAHAN DALEIN
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxZzcjIJEE-I__P4ThslVpyLaQi62SynNbepZMfEMJLYutRLtkaI3ftazx7u24vvHAQ/exec";
     const DOMAIN = "@v5global.co.in";
     const CURRENT_VERSION = "1.0"; 
@@ -46,10 +47,10 @@
         let email = localStorage.getItem("user_email");
         if (!email) {
             email = prompt("Enter your @v5global.co.in email:");
-            if (email && email.endsWith(DOMAIN)) {
+            if (email && email.toLowerCase().endsWith(DOMAIN)) {
                 localStorage.setItem("user_email", email.toLowerCase().trim());
             } else {
-                document.getElementById('status-text').innerHTML = "Access Denied!";
+                document.getElementById('status-text').innerHTML = "<h3 style='color:red;'>Access Denied!</h3>Official domain required.";
                 return;
             }
         }
@@ -58,20 +59,27 @@
 
     async function loadData() {
         try {
+            // Naya data fetch karna
             const res = await fetch(SHEET_API_URL, { redirect: 'follow' });
             const rawData = await res.json();
             const userEmail = localStorage.getItem("user_email").toLowerCase().trim();
 
-            // 1. Kill Switch
+            console.log("Users in Sheet:", rawData.users); // Debugging
+
+            // 1. KILL SWITCH (Strict Check)
             const userEntry = rawData.users.find(u => u.email === userEmail);
-            if (!userEntry || userEntry.status.toLowerCase() !== "active") {
-                document.getElementById('status-text').innerHTML = "🚫 Access Revoked!";
+            
+            // Agar user list mein nahi hai YA status 'Active' nahi hai
+            if (!userEntry || userEntry.status.toLowerCase().trim() !== "active") {
+                document.getElementById('status-text').innerHTML = 
+                    "<div style='color:red;'><h2>🚫 ACCESS REVOKED</h2><p>Aapka account Inactive hai.<br>Manager se sampark karein.</p></div>";
                 return;
             }
 
-            // 2. Version Sync
+            // 2. VERSION SYNC
             if (parseFloat(rawData.latestVersion) > parseFloat(CURRENT_VERSION)) {
-                document.getElementById('status-text').innerHTML = "⚠️ New Update Available!<br><button onclick='location.reload()'>Refresh</button>";
+                document.getElementById('status-text').innerHTML = 
+                    "<h2>⚠️ Update Required</h2><p>New version v"+rawData.latestVersion+" is live.</p><button onclick='location.reload()' style='padding:10px;'>Refresh Now</button>";
                 return;
             }
 
@@ -79,7 +87,8 @@
             document.getElementById('overlay').style.display = 'none';
             renderStep(1);
         } catch (e) {
-            document.getElementById('status-text').innerHTML = "Database Error!<br>Check Sheet Tabs & URL.";
+            console.error(e);
+            document.getElementById('status-text').innerHTML = "Database Error!<br>Check Sheet Tab Names.";
         }
     }
 
@@ -92,18 +101,23 @@
         const optCont = document.getElementById('opt-container');
         const navArea = document.getElementById('nav-area');
         optCont.innerHTML = "";
+        
         if (data.options && data.options.trim() !== "") {
             navArea.style.display = "none";
             data.options.split(',').forEach(opt => {
                 const parts = opt.split(':');
-                const btn = document.createElement('button');
-                btn.className = "opt-btn";
-                btn.innerText = parts[0].trim();
-                btn.onclick = () => renderStep(parts[1].trim());
-                optCont.appendChild(btn);
+                if(parts.length === 2) {
+                    const btn = document.createElement('button');
+                    btn.className = "opt-btn";
+                    btn.innerText = parts[0].trim();
+                    btn.onclick = () => renderStep(parts[1].trim());
+                    optCont.appendChild(btn);
+                }
             });
         } else {
             navArea.style.display = "block";
+            document.getElementById('ack-check').checked = false;
+            document.getElementById('next-btn').disabled = true;
         }
     }
 
@@ -112,7 +126,7 @@
     };
 
     function goNext() { renderStep(parseInt(currentStep) + 1); }
-    function finish() { document.getElementById('main-content').innerHTML = "Action Complete! ✅"; }
+    function finish() { document.getElementById('main-content').innerHTML = "<h3>✅ Action Complete!</h3>"; }
 </script>
 </body>
 </html>
