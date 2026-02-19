@@ -2,114 +2,106 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Knowledge Hub Pro</title>
     <style>
-        :root { --primary: #2563eb; --text: #1e293b; --bg: #f8fafc; }
-        body { 
-            font-family: 'Inter', sans-serif; margin: 0; padding: 12px;
-            width: 320px; height: 520px; display: flex; flex-direction: column;
-            background: white; color: var(--text); box-sizing: border-box;
-        }
-        .header { 
-            font-weight: 700; font-size: 13px; border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px; color: var(--primary); display: flex; justify-content: space-between;
-        }
-        /* Alignment Fix */
-        .content-area { 
-            flex-grow: 1; display: flex; flex-direction: column; 
-            overflow-y: auto; margin: 10px 0; gap: 10px;
-        }
-        .instruction-box { 
-            font-size: 14px; line-height: 1.6; padding: 10px;
-            background: var(--bg); border-radius: 8px; border-left: 4px solid var(--primary);
-        }
-        .option-container { display: flex; flex-direction: column; gap: 8px; }
-        .opt-btn { 
-            width: 100%; padding: 12px; border: 1px solid #e2e8f0; 
-            border-radius: 8px; background: white; text-align: left;
-            font-size: 13px; cursor: pointer; transition: 0.2s;
-        }
-        .opt-btn:hover { border-color: var(--primary); background: #eff6ff; }
+        :root { --primary: #2563eb; --danger: #ef4444; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 12px; width: 320px; min-height: 480px; display: flex; flex-direction: column; background: var(--bg); color: #1e293b; overflow-x: hidden; }
         
-        /* Admin Panel Styling */
-        .admin-box { 
-            display: none; padding: 10px; background: #f1f5f9; 
-            border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 10px;
-        }
-        .admin-box input { width: 100%; padding: 6px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
-        .action-row { display: flex; gap: 5px; }
-        .action-row button { flex: 1; padding: 8px; border: none; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .nav-group { display: flex; gap: 8px; }
+        .nav-btn { padding: 6px 12px; border: none; border-radius: 6px; background: white; color: #64748b; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .nav-btn:hover { background: #f1f5f9; }
+
+        .instr-card { background: white; padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-size: 14px; line-height: 1.6; border-left: 4px solid var(--primary); }
+        
+        .opt-container { display: flex; flex-direction: column; gap: 10px; }
+        .opt-btn { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; background: white; text-align: left; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 600; color: #334155; display: flex; justify-content: space-between; align-items: center; }
+        .opt-btn:hover { border-color: var(--primary); background: #eff6ff; color: var(--primary); transform: translateX(4px); }
+        .opt-btn span { font-size: 16px; opacity: 0.5; }
+
+        .admin-panel { display: none; background: #0f172a; color: white; padding: 15px; border-radius: 12px; margin-top: 15px; }
+        input, textarea { width: 100%; padding: 8px; margin: 6px 0; border-radius: 6px; border: none; box-sizing: border-box; font-size: 12px; }
+        .admin-btn-row { display: flex; gap: 8px; margin-top: 8px; }
+        .adm-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <span>KNOWLEDGE HUB PRO</span>
-    <span id="admin-gear" style="cursor:pointer; display:none;">⚙️</span>
-</div>
-
-<div class="content-area" id="main-view">
-    <div id="step-info" style="font-size: 10px; color: #64748b;">STEP 1</div>
-    <div class="instruction-box" id="instr-text">Loading...</div>
-    <div class="option-container" id="opt-container"></div>
-    
-    <div id="manual-nav" style="display:none; margin-top: auto;">
-        <label style="font-size: 11px; display: block; margin-bottom: 8px;">
-            <input type="checkbox" id="ack-check"> I have understood.
-        </label>
-        <button id="next-btn" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold;" disabled onclick="goNext()">Continue</button>
+<div class="top-bar">
+    <div class="nav-group">
+        <button class="nav-btn" onclick="goBack()">◀ BACK</button>
+        <button class="nav-btn" onclick="resetFlow()" style="color:var(--danger)">🔄 RESET</button>
     </div>
+    <span id="admin-gear" style="cursor:pointer; font-size:18px;">⚙️</span>
 </div>
 
-<div id="admin-panel" class="admin-box">
+<div class="instr-card" id="instr-text">Loading instructions...</div>
+<div class="opt-container" id="opt-container"></div>
+
+<div id="admin-panel" class="admin-panel">
+    <div style="font-weight:bold; margin-bottom:10px; border-bottom:1px solid #334155; padding-bottom:5px;">ADMIN CONTROLS</div>
     <input id="in-id" type="number" placeholder="Step ID">
-    <input id="in-instr" type="text" placeholder="Instruction Text">
-    <input id="in-opts" type="text" placeholder="Options (Yes:2, No:3)">
-    <div class="action-row">
-        <button onclick="saveStep()" style="background:#059669;">Save/Add</button>
-        <button onclick="delStep()" style="background:#dc2626;">Delete ID</button>
+    <textarea id="in-instr" rows="3" placeholder="Instruction (Supports <b>, <i>, <br>)"></textarea>
+    <input id="in-opts" placeholder="Buttons (Label:ID, Label:ID)">
+    <div class="admin-btn-row">
+        <button class="adm-btn" onclick="addStep()" style="background:#10b981">ADD/UPDATE</button>
+        <button class="adm-btn" onclick="delStep()" style="background:var(--danger)">DELETE</button>
     </div>
 </div>
 
 <script>
-    const API = "https://script.google.com/macros/s/AKfycbwtnD7T2_wBzOTVKgwVgf7SEQWVHREbH52ex7ZMoo3xe7g2VMYmx4Ev2oAM5IVnAqSx/exec";
-    let steps = [];
-    let current = 1;
+    const SHEET_API = "https://script.google.com/macros/s/AKfycbxHYgj7hoG7Re3MDlvF_-b14c-kcqACGtWWMY0Xkyl0sLM3Bodu00lh1ZYnYyz4GfQ7/exec";
+    let masterSteps = [];
+    let history = [];
 
     window.onload = async () => {
-        const res = await fetch(API);
-        const data = await res.json();
-        const user = data.users.find(u => u.email === localStorage.getItem("user_email"));
-        
-        if(user?.role === "Admin") document.getElementById('admin-gear').style.display = "block";
-        steps = data.steps;
-        render(1);
+        try {
+            const res = await fetch(SHEET_API);
+            const data = await res.json();
+            masterSteps = data.steps;
+            
+            const user = data.users.find(u => u.email === localStorage.getItem("user_email"));
+            if(user?.role !== "Admin") document.getElementById('admin-gear').style.display = "none";
+            
+            render(1);
+        } catch (e) { document.getElementById('instr-text').innerText = "Connection Error."; }
     };
 
-    function render(sid) {
-        const s = steps.find(x => x.step == sid);
-        if(!s) return finish();
-        current = sid;
-        document.getElementById('step-info').innerText = "STEP " + sid;
-        document.getElementById('instr-text').innerText = s.instruction;
+    function render(sid, isBack = false) {
+        const step = masterSteps.find(s => s.step == sid);
+        if(!step) return; // Silent stop if ID not found
+        
+        if(!isBack) history.push(sid);
+        
+        document.getElementById('instr-text').innerHTML = step.instruction;
         const cont = document.getElementById('opt-container');
-        const nav = document.getElementById('manual-nav');
         cont.innerHTML = "";
-
-        if(s.options && s.options.trim() !== "") {
-            nav.style.display = "none";
-            s.options.split(',').forEach(o => {
-                const [txt, next] = o.split(':');
-                const btn = document.createElement('button');
-                btn.className = "opt-btn";
-                btn.innerText = "👉 " + txt.trim();
-                btn.onclick = () => render(next.trim());
-                cont.appendChild(btn);
+        
+        if(step.options && step.options.trim() !== "") {
+            step.options.split(',').forEach(o => {
+                const parts = o.split(':');
+                if(parts.length === 2) {
+                    const btn = document.createElement('button');
+                    btn.className = "opt-btn";
+                    btn.innerHTML = `<div>${parts[0].trim()}</div> <span>›</span>`;
+                    btn.onclick = () => render(parts[1].trim());
+                    cont.appendChild(btn);
+                }
             });
-        } else {
-            nav.style.display = "block";
-            document.getElementById('ack-check').checked = false;
-            document.getElementById('next-btn').disabled = true;
         }
+    }
+
+    function goBack() {
+        if(history.length > 1) {
+            history.pop(); 
+            const prev = history.pop(); 
+            render(prev);
+        }
+    }
+
+    function resetFlow() {
+        history = [];
+        render(1);
     }
 
     document.getElementById('admin-gear').onclick = () => {
@@ -117,26 +109,22 @@
         p.style.display = p.style.display === "block" ? "none" : "block";
     };
 
-    async function saveStep() {
-        const body = { 
-            action: "ADD_STEP", 
+    async function addStep() {
+        const data = {
+            action: "ADD_STEP",
             stepId: document.getElementById('in-id').value,
             instr: document.getElementById('in-instr').value,
             opts: document.getElementById('in-opts').value
         };
-        await fetch(API, { method: "POST", mode: 'no-cors', body: JSON.stringify(body) });
-        alert("Synced with Sheet!"); location.reload();
+        await fetch(SHEET_API, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) });
+        alert("Step Updated!"); location.reload();
     }
 
     async function delStep() {
-        const body = { action: "DELETE_STEP", stepId: document.getElementById('in-id').value };
-        await fetch(API, { method: "POST", mode: 'no-cors', body: JSON.stringify(body) });
-        alert("Deleted from Sheet!"); location.reload();
+        const data = { action: "DELETE_STEP", stepId: document.getElementById('in-id').value };
+        await fetch(SHEET_API, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) });
+        alert("Step Deleted!"); location.reload();
     }
-
-    document.getElementById('ack-check').onchange = function() { document.getElementById('next-btn').disabled = !this.checked; };
-    function goNext() { render(parseInt(current) + 1); }
-    function finish() { document.getElementById('main-view').innerHTML = "<h3>✅ Flow Complete</h3><button onclick='location.reload()'>Restart</button>"; }
 </script>
 </body>
 </html>
