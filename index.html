@@ -5,42 +5,107 @@
     <title>Knowledge Hub Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --bg: #ffffff; --text-main: #1e293b; --text-sub: #64748b; }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 10px; background: var(--bg); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; overflow: hidden; }
-        .header { font-weight: 700; font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px; color: var(--primary); display: flex; justify-content: space-between; }
+        :root { --primary: #2563eb; --bg: #ffffff; --text-main: #1e293b; --text-sub: #64748b; --admin-bg: #f1f5f9; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; margin: 0; padding: 10px; 
+            width: 320px; height: 500px; display: flex; flex-direction: column; 
+            background: var(--bg); color: var(--text-main); overflow: hidden; 
+        }
+
+        .header { 
+            font-weight: 700; font-size: 14px; border-bottom: 1px solid #e2e8f0; 
+            padding-bottom: 8px; margin-bottom: 10px; color: var(--primary); 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
         .instruction { font-size: 13px; line-height: 1.5; margin: 10px 0; flex-grow: 1; overflow-y: auto; }
+        
         .opt-grid { display: grid; gap: 8px; margin-top: auto; }
-        .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; cursor: pointer; text-align: left; font-size: 12px; font-weight: 500; }
+        
+        .opt-btn { 
+            padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; 
+            background: #f8fafc; cursor: pointer; text-align: left; 
+            font-size: 12px; font-weight: 500; transition: 0.2s;
+        }
         .opt-btn:hover { background: #eff6ff; border-color: var(--primary); color: var(--primary); }
-        .next-btn { width: 100%; margin-top: 10px; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+        .next-btn { 
+            width: 100%; margin-top: 10px; padding: 12px; 
+            background: var(--primary); color: white; border: none; 
+            border-radius: 8px; cursor: pointer; font-weight: 600; 
+        }
         .next-btn:disabled { background: #cbd5e1; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px; }
+
+        /* Admin Panel Styling */
+        .admin-panel { 
+            display: none; background: var(--admin-bg); padding: 12px; 
+            border-radius: 10px; margin-top: 10px; border: 1px solid #cbd5e1; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .admin-panel input { 
+            width: 100%; padding: 8px; margin-bottom: 8px; 
+            font-size: 11px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
+        .admin-actions { display: flex; gap: 5px; }
+        .admin-btn { 
+            flex: 1; padding: 8px; border: none; border-radius: 4px; 
+            cursor: pointer; font-size: 11px; font-weight: 600; color: white;
+        }
+        .btn-add { background: #059669; }
+        .btn-del { background: #dc2626; }
+
+        #overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: white; z-index: 1000; display: flex; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            text-align: center; padding: 20px; 
+        }
+        
+        .gear-icon { font-size: 16px; cursor: pointer; display: none; padding: 5px; }
     </style>
 </head>
 <body>
 
 <div id="overlay">
     <div style="font-size: 40px; margin-bottom: 10px;">🔄</div>
-    <div style="font-weight: 700; color: var(--primary);">Verifying Advisor...</div>
+    <div style="font-weight: 700; color: var(--primary);">Authenticating...</div>
 </div>
 
 <div class="header">
     <span>KNOWLEDGE HUB PRO</span>
-    <span id="step-id" style="color: var(--text-sub); font-size: 10px;">v1.0</span>
+    <span id="admin-toggle" class="gear-icon">⚙️</span>
 </div>
 
-<div id="main-content" style="display: flex; flex-direction: column; height: 100%;">
-    <div class="instruction" id="instr-text">Loading...</div>
+<div id="main-ui" style="display: flex; flex-direction: column; height: 100%;">
+    <div id="step-id" style="color: var(--text-sub); font-size: 10px; margin-bottom: 5px;">STEP 1</div>
+    <div class="instruction" id="instr-text">Loading guidelines...</div>
     <div id="opt-container" class="opt-grid"></div>
+    
     <div id="nav-area" style="display:none; margin-top: 10px;">
-        <label style="font-size: 11px; cursor: pointer; display: block; margin-bottom: 5px;"><input type="checkbox" id="ack-check"> I have understood this step.</label>
+        <label style="font-size: 11px; cursor: pointer; display: flex; align-items: center;">
+            <input type="checkbox" id="ack-check" style="margin-right: 8px;"> I have understood this step.
+        </label>
         <button class="next-btn" id="next-btn" disabled onclick="goNext()">Continue</button>
+    </div>
+
+    <div id="admin-panel" class="admin-panel">
+        <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #1e293b;">Admin: Add/Edit Steps</div>
+        <input id="new-id" type="number" placeholder="Step ID (Example: 5)">
+        <input id="new-instr" type="text" placeholder="Instruction Text">
+        <input id="new-opts" type="text" placeholder="Options (Yes:6, No:7)">
+        <div class="admin-actions">
+            <button class="admin-btn btn-add" onclick="addStep()">➕ Add Step</button>
+            <button class="admin-btn btn-del" onclick="deleteStep()">🗑️ Delete ID</button>
+        </div>
     </div>
 </div>
 
 <script>
+    // 1. APNA NAYA DEPLOYED URL YAHAN DALEIN
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbz1UhpKxbr3oDvp4LCFCV90RNO6aTZi77yowjmrqGZzEMr_8qb7pKHi2tuybWsMe-QY/exec";
     const DOMAIN = "@v5global.co.in";
+    
     let masterData = [];
     let currentStep = 1;
 
@@ -52,7 +117,7 @@
                 localStorage.setItem("user_email", email.toLowerCase().trim());
                 location.reload();
             } else {
-                document.body.innerHTML = "<h3 style='text-align:center;color:red;padding-top:50px;'>UNAUTHORIZED ACCESS</h3>";
+                document.body.innerHTML = "<h3 style='text-align:center;color:red;padding-top:50px;'>UNAUTHORIZED</h3>";
                 return;
             }
         }
@@ -63,19 +128,25 @@
         try {
             const res = await fetch(SHEET_API_URL, { redirect: 'follow' });
             const rawData = await res.json();
-            const userEmail = localStorage.getItem("user_email");
+            const userEmail = localStorage.getItem("user_email").toLowerCase().trim();
 
             const userEntry = rawData.users.find(u => u.email === userEmail);
+            
             if (!userEntry || userEntry.status.toLowerCase() !== "active") {
                 document.body.innerHTML = "<h3 style='text-align:center;color:red;padding-top:50px;'>ACCESS REVOKED</h3>";
                 return;
+            }
+
+            // DYNAMIC ADMIN CHECK (Users Sheet ka Column C)
+            if (userEntry.role === "Admin") {
+                document.getElementById('admin-toggle').style.display = "block";
             }
 
             masterData = rawData.steps;
             document.getElementById('overlay').style.display = 'none';
             renderStep(1);
         } catch (e) {
-            document.getElementById('overlay').innerHTML = "Connection Error. Restarting...";
+            document.getElementById('overlay').innerHTML = "Connection Error. Refreshing...";
             setTimeout(() => location.reload(), 3000);
         }
     }
@@ -86,9 +157,11 @@
         currentStep = sid;
         document.getElementById('instr-text').innerText = data.instruction;
         document.getElementById('step-id').innerText = "STEP " + sid;
+        
         const optCont = document.getElementById('opt-container');
         const navArea = document.getElementById('nav-area');
         optCont.innerHTML = "";
+
         if (data.options && data.options.trim() !== "") {
             navArea.style.display = "none";
             data.options.split(',').forEach(opt => {
@@ -108,9 +181,47 @@
         }
     }
 
-    document.getElementById('ack-check').onchange = function() { document.getElementById('next-btn').disabled = !this.checked; };
+    // Toggle Admin Panel
+    document.getElementById('admin-toggle').onclick = () => {
+        const panel = document.getElementById('admin-panel');
+        panel.style.display = panel.style.display === "block" ? "none" : "block";
+    };
+
+    async function addStep() {
+        const sid = document.getElementById('new-id').value;
+        const instr = document.getElementById('new-instr').value;
+        const opts = document.getElementById('new-opts').value;
+        if(!sid || !instr) return alert("Please fill ID and Instruction");
+
+        await fetch(SHEET_API_URL, {
+            method: "POST", mode: 'no-cors',
+            body: JSON.stringify({ action: "ADD_STEP", stepId: sid, instr: instr, opts: opts })
+        });
+        alert("Step added to Sheet! Refreshing...");
+        location.reload();
+    }
+
+    async function deleteStep() {
+        const sid = document.getElementById('new-id').value;
+        if(!sid) return alert("Enter Step ID to delete");
+
+        await fetch(SHEET_API_URL, {
+            method: "POST", mode: 'no-cors',
+            body: JSON.stringify({ action: "DELETE_STEP", stepId: sid })
+        });
+        alert("Step deleted! Refreshing...");
+        location.reload();
+    }
+
+    document.getElementById('ack-check').onchange = function() { 
+        document.getElementById('next-btn').disabled = !this.checked; 
+    };
+
     function goNext() { renderStep(parseInt(currentStep) + 1); }
-    function finish() { document.getElementById('main-content').innerHTML = "<div style='text-align:center; padding:20px;'><h3>✅ Task Finished</h3><button onclick='location.reload()' style='padding:10px;cursor:pointer;'>Restart</button></div>"; }
+
+    function finish() { 
+        document.getElementById('main-ui').innerHTML = "<div style='text-align:center; padding-top:50px;'><div style='font-size:40px;'>✅</div><h3>Task Finished</h3><button onclick='location.reload()' style='padding:10px; border-radius:8px; border:1px solid #ccc; cursor:pointer;'>Restart Flow</button></div>"; 
+    }
 </script>
 </body>
 </html>
