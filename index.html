@@ -61,7 +61,7 @@
 
     async function loadData() {
         try {
-            const res = await fetch(https://script.google.com/macros/s/AKfycbxJeVPtLxdVDp2gzV2vduUl_kKsNj-u1r3OTuvksBg6U4uukxCj5o2eg4HlazalVIXf/exec);
+            const res = await fetch(SHEET_API_URL);
             const rawData = await res.json();
             masterData = Array.isArray(rawData) ? rawData : rawData.steps; 
             document.getElementById('overlay').style.display = 'none';
@@ -114,5 +114,6 @@
 </script>
 </body>
 </html>
+
 
 
