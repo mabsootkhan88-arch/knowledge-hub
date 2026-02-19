@@ -1,37 +1,134 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Knowledge Hub Mini</title>
+    <title>Knowledge Hub Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; color: #1e293b; }
-        .header { font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px; color: #2563eb; display: flex; justify-content: space-between; font-size: 14px; }
-        .instruction { font-size: 14px; line-height: 1.5; margin: 10px 0; min-height: 40px; }
-        .opt-grid { display: grid; gap: 8px; }
-        .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; cursor: pointer; text-align: left; font-size: 12px; }
-        .opt-btn:hover { background: #eff6ff; border-color: #2563eb; }
-        .next-btn { width: 100%; margin-top: 10px; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        :root {
+            --primary: #2563eb;
+            --danger: #ef4444;
+            --bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            padding: 15px; 
+            background: var(--bg); 
+            color: var(--text-main); 
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Header Style */
+        .header { 
+            font-weight: 700; 
+            font-size: 14px; 
+            border-bottom: 1px solid #e2e8f0; 
+            padding-bottom: 10px; 
+            margin-bottom: 15px; 
+            color: var(--primary); 
+            display: flex; 
+            justify-content: space-between; 
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content Display */
+        .instruction { 
+            font-size: 14px; 
+            line-height: 1.6; 
+            margin: 15px 0; 
+            min-height: 60px; 
+            color: var(--text-main);
+        }
+
+        /* Options Buttons */
+        .opt-grid { display: grid; gap: 10px; }
+        .opt-btn { 
+            padding: 12px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 8px; 
+            background: #f8fafc; 
+            cursor: pointer; 
+            text-align: left; 
+            font-size: 13px; 
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .opt-btn:hover { 
+            background: #eff6ff; 
+            border-color: var(--primary); 
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        /* Navigation Area */
+        .next-btn { 
+            width: 100%; 
+            margin-top: 15px; 
+            padding: 14px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 14px;
+        }
         .next-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
+
+        /* Centered Status Overlay (Access Revoked / Loading) */
+        #overlay { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: white; 
+            z-index: 1000; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            padding: 30px; 
+            box-sizing: border-box; 
+        }
+
+        .status-icon { font-size: 48px; margin-bottom: 20px; }
+        .status-title { font-size: 20px; font-weight: 700; color: var(--danger); margin-bottom: 10px; text-transform: uppercase; }
+        .status-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
+
     </style>
 </head>
 <body>
 
 <div id="overlay">
-    <div id="status-text">Verifying Access...</div>
+    <div id="status-content">
+        <div class="status-icon">🔄</div>
+        <div class="status-title" style="color: var(--primary);">Authenticating</div>
+        <div class="status-desc">Verifying advisor credentials...</div>
+    </div>
 </div>
 
 <div class="header">
-    <span>KNOWLEDGE HUB</span>
-    <span id="step-id">v1.0</span>
+    <span>KNOWLEDGE HUB PRO</span>
+    <span id="step-id" style="color: var(--text-sub); font-size: 11px;">v1.0</span>
 </div>
 
 <div id="main-content">
-    <div class="instruction" id="instr-text">Loading...</div>
+    <div class="instruction" id="instr-text">Loading guidelines...</div>
     <div class="opt-grid" id="opt-container"></div>
-    <div id="nav-area" style="display:none; margin-top:10px;">
-        <label style="font-size: 12px; cursor: pointer;"><input type="checkbox" id="ack-check"> I have read and understood.</label>
-        <button class="next-btn" id="next-btn" disabled onclick="goNext()">Next Step</button>
+    
+    <div id="nav-area" style="display:none; margin-top: 15px;">
+        <label style="font-size: 12px; color: var(--text-sub); cursor: pointer; display: flex; align-items: center;">
+            <input type="checkbox" id="ack-check" style="margin-right: 8px;"> I have read and understood this step.
+        </label>
+        <button class="next-btn" id="next-btn" disabled onclick="goNext()">Continue</button>
     </div>
 </div>
 
@@ -46,11 +143,11 @@
     window.onload = async () => {
         let email = localStorage.getItem("user_email");
         if (!email) {
-            email = prompt("Enter your @v5global.co.in email to start:");
+            email = prompt("Enter your @v5global.co.in email:");
             if (email && email.toLowerCase().endsWith(DOMAIN)) {
                 localStorage.setItem("user_email", email.toLowerCase().trim());
             } else {
-                document.getElementById('status-text').innerHTML = "<h3 style='color:red;'>Unauthorized!</h3>Please use your official email.";
+                showBlocked("UNAUTHORIZED", "Please use your official company email to log in.");
                 return;
             }
         }
@@ -63,26 +160,17 @@
             const rawData = await res.json();
             const userEmail = localStorage.getItem("user_email").toLowerCase().trim();
 
-            // --- WHITELIST LOGIC ---
-            // Pehle check karein ki kya ye email 'Users' tab mein hai?
+            // WHITELIST & KILL SWITCH LOGIC
             const userEntry = rawData.users.find(u => u.email === userEmail);
             
-            if (!userEntry) {
-                // Agar email list mein hi nahi hai
-                document.getElementById('status-text').innerHTML = 
-                    "<div style='color:red;'><h2>🚫 ACCESS DENIED</h2><p>Aapka email registered nahi hai.<br>Admin se apna email add karwayein.</p></div>";
-                return;
-            } else if (userEntry.status.toLowerCase().trim() !== "active") {
-                // Agar email hai par 'Inactive' hai
-                document.getElementById('status-text').innerHTML = 
-                    "<div style='color:red;'><h2>🚫 ACCOUNT INACTIVE</h2><p>Aapka access band kar diya gaya hai.</p></div>";
+            if (!userEntry || userEntry.status.toLowerCase().trim() !== "active") {
+                showBlocked("ACCESS REVOKED", "Your account is currently inactive.<br>Please reach out to your POC.");
                 return;
             }
 
-            // --- VERSION CHECK ---
+            // VERSION CHECK
             if (parseFloat(rawData.latestVersion) > parseFloat(CURRENT_VERSION)) {
-                document.getElementById('status-text').innerHTML = 
-                    "<h2>⚠️ Update Available</h2><p>Nayi guidelines load karne ke liye refresh karein.</p><button onclick='location.reload()' style='padding:10px 20px; cursor:pointer;'>Update Now</button>";
+                showBlocked("UPDATE REQUIRED", `A newer version (v${rawData.latestVersion}) is available.<br><button onclick='location.reload()' style='margin-top:15px; padding:10px 20px; cursor:pointer;'>Update Now</button>`, "⚠️");
                 return;
             }
 
@@ -90,17 +178,26 @@
             document.getElementById('overlay').style.display = 'none';
             renderStep(1);
         } catch (e) {
-            console.error(e);
-            document.getElementById('status-text').innerHTML = "Database Connection Error!<br>Check your internet or API URL.";
+            showBlocked("DATABASE ERROR", "Unable to connect to the knowledge base.<br>Check your connection.", "❌");
         }
+    }
+
+    function showBlocked(title, desc, icon = "🚫") {
+        document.getElementById('status-content').innerHTML = `
+            <div class="status-icon">${icon}</div>
+            <div class="status-title">${title}</div>
+            <div class="status-desc">${desc}</div>
+        `;
     }
 
     function renderStep(sid) {
         const data = masterData.find(d => d.step == sid);
         if (!data) return finish();
+        
         currentStep = sid;
         document.getElementById('instr-text').innerText = data.instruction;
-        document.getElementById('step-id').innerText = "Step " + sid;
+        document.getElementById('step-id').innerText = "STEP " + sid;
+        
         const optCont = document.getElementById('opt-container');
         const navArea = document.getElementById('nav-area');
         optCont.innerHTML = "";
@@ -129,7 +226,16 @@
     };
 
     function goNext() { renderStep(parseInt(currentStep) + 1); }
-    function finish() { document.getElementById('main-content').innerHTML = "<div style='text-align:center; padding:20px;'><h3>✅ Action Complete!</h3><button onclick='location.reload()'>Restart</button></div>"; }
+    
+    function finish() { 
+        document.getElementById('main-content').innerHTML = `
+            <div style='text-align:center; padding:30px 10px;'>
+                <div style="font-size:40px; margin-bottom:15px;">✅</div>
+                <h3 style="margin-bottom:10px;">Process Complete</h3>
+                <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">You have successfully followed all steps.</p>
+                <button onclick='location.reload()' style='padding:10px 25px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer;'>Restart Flow</button>
+            </div>`; 
+    }
 </script>
 </body>
 </html>
