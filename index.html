@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Knowledge Hub Mini</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 10px; background: #fff; color: #1e293b; overflow-x: hidden; }
-        .header { font-weight: bold; font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px; color: #2563eb; display: flex; justify-content: space-between; }
-        .step-badge { font-size: 10px; background: #dbeafe; color: #2563eb; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
-        .instruction { font-size: 13px; line-height: 1.5; margin: 10px 0; min-height: 50px; }
-        .opt-grid { display: grid; gap: 8px; }
-        .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; cursor: pointer; text-align: left; font-size: 12px; transition: 0.2s; }
-        .opt-btn:hover { background: #eff6ff; border-color: #2563eb; color: #2563eb; }
-        .ack-section { margin-top: 10px; padding: 8px; background: #fff7ed; border-radius: 6px; font-size: 11px; }
-        .next-btn { width: 100%; margin-top: 10px; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .next-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
-        .btn-update { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; }
+        .header { font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px; color: #2563eb; display: flex; justify-content: space-between; }
+        .instruction { font-size: 14px; margin: 10px 0; min-height: 40px; }
+        .opt-grid { display: grid; gap: 5px; }
+        .opt-btn { padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9; cursor: pointer; text-align: left; }
+        .next-btn { width: 100%; margin-top: 10px; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .next-btn:disabled { background: #ccc; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
 <body>
@@ -27,24 +22,20 @@
 
 <div class="header">
     <span>KNOWLEDGE HUB</span>
-    <span class="step-badge" id="step-id">v1.0</span>
+    <span id="step-id">v1.0</span>
 </div>
 
 <div id="main-content">
     <div class="instruction" id="instr-text">Loading...</div>
     <div class="opt-grid" id="opt-container"></div>
-    
-    <div id="nav-area" style="display:none;">
-        <div class="ack-section">
-            <label style="cursor:pointer;"><input type="checkbox" id="ack-check"> Acknowledge and Proceed</label>
-        </div>
+    <div id="nav-area" style="display:none; margin-top:10px;">
+        <label style="font-size: 12px;"><input type="checkbox" id="ack-check"> I Acknowledge</label>
         <button class="next-btn" id="next-btn" disabled onclick="goNext()">Next Step</button>
     </div>
 </div>
 
 <script>
-    // --- SETTINGS ---
-    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwQNV9-YVwlFd-FLwimIvlQ-pQbDFoiBdYcECG46a_XGk2l6fmqDMafG42kMSHVPzNh/exec";
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxZzcjIJEE-I__P4ThslVpyLaQi62SynNbepZMfEMJLYutRLtkaI3ftazx7u24vvHAQ/exec";
     const DOMAIN = "@v5global.co.in";
     const CURRENT_VERSION = "1.0"; 
 
@@ -53,16 +44,16 @@
 
     window.onload = async () => {
         let email = localStorage.getItem("user_email");
-        if (!email || !email.endsWith(DOMAIN)) {
+        if (!email) {
             email = prompt("Enter your @v5global.co.in email:");
             if (email && email.endsWith(DOMAIN)) {
                 localStorage.setItem("user_email", email.toLowerCase().trim());
             } else {
-                document.getElementById('status-text').innerHTML = "<h3 style='color:red;'>Access Denied!</h3>Official Email Required.";
+                document.getElementById('status-text').innerHTML = "Access Denied!";
                 return;
             }
         }
-        await loadData();
+        loadData();
     };
 
     async function loadData() {
@@ -71,63 +62,45 @@
             const rawData = await res.json();
             const userEmail = localStorage.getItem("user_email").toLowerCase().trim();
 
-            // 1. KILL SWITCH CHECK
+            // 1. Kill Switch
             const userEntry = rawData.users.find(u => u.email === userEmail);
-            if (!userEntry || userEntry.status !== "Active") {
-                document.getElementById('status-text').innerHTML = 
-                    "<h2 style='color:red;'>🚫 ACCESS REVOKED</h2><p>Aapka account deactivate kar diya gaya hai. Manager se sampark karein.</p>";
+            if (!userEntry || userEntry.status.toLowerCase() !== "active") {
+                document.getElementById('status-text').innerHTML = "🚫 Access Revoked!";
                 return;
             }
 
-            // 2. UPDATE SYNC CHECK
+            // 2. Version Sync
             if (parseFloat(rawData.latestVersion) > parseFloat(CURRENT_VERSION)) {
-                document.getElementById('status-text').innerHTML = 
-                    `<h2>⚠️ NEW UPDATE (v${rawData.latestVersion})</h2>
-                     <p>Nayi guidelines jaari ho gayi hain.</p>
-                     <button class="btn-update" onclick="location.reload()">Acknowledge & Refresh</button>`;
+                document.getElementById('status-text').innerHTML = "⚠️ New Update Available!<br><button onclick='location.reload()'>Refresh</button>";
                 return;
             }
 
-            // 3. LOAD DATA
-            masterData = rawData.steps || []; 
-            if (masterData.length === 0) {
-                document.getElementById('status-text').innerText = "No data found in Sheet!";
-                return;
-            }
-
+            masterData = rawData.steps;
             document.getElementById('overlay').style.display = 'none';
             renderStep(1);
         } catch (e) {
-            console.error(e);
-            document.getElementById('status-text').innerHTML = "<b style='color:red;'>Database Error!</b><br>Check Apps Script Deployment.";
+            document.getElementById('status-text').innerHTML = "Database Error!<br>Check Sheet Tabs & URL.";
         }
     }
 
     function renderStep(sid) {
         const data = masterData.find(d => d.step == sid);
         if (!data) return finish();
-
         currentStep = sid;
         document.getElementById('instr-text').innerText = data.instruction;
         document.getElementById('step-id').innerText = "Step " + sid;
-        
         const optCont = document.getElementById('opt-container');
         const navArea = document.getElementById('nav-area');
         optCont.innerHTML = "";
-        document.getElementById('ack-check').checked = false;
-        document.getElementById('next-btn').disabled = true;
-
         if (data.options && data.options.trim() !== "") {
             navArea.style.display = "none";
             data.options.split(',').forEach(opt => {
                 const parts = opt.split(':');
-                if (parts.length === 2) {
-                    const btn = document.createElement('button');
-                    btn.className = "opt-btn";
-                    btn.innerText = parts[0].trim();
-                    btn.onclick = () => renderStep(parts[1].trim());
-                    optCont.appendChild(btn);
-                }
+                const btn = document.createElement('button');
+                btn.className = "opt-btn";
+                btn.innerText = parts[0].trim();
+                btn.onclick = () => renderStep(parts[1].trim());
+                optCont.appendChild(btn);
             });
         } else {
             navArea.style.display = "block";
@@ -138,18 +111,8 @@
         document.getElementById('next-btn').disabled = !this.checked;
     };
 
-    function goNext() {
-        renderStep(parseInt(currentStep) + 1);
-    }
-
-    function finish() {
-        document.getElementById('main-content').innerHTML = `
-            <div style='text-align:center; padding:20px;'>
-                <div style="font-size:30px;">✅</div>
-                <b>Action Complete!</b><br><br>
-                <button onclick='location.reload()' style='padding:8px 20px; cursor:pointer;'>Restart Consult</button>
-            </div>`;
-    }
+    function goNext() { renderStep(parseInt(currentStep) + 1); }
+    function finish() { document.getElementById('main-content').innerHTML = "Action Complete! ✅"; }
 </script>
 </body>
 </html>
