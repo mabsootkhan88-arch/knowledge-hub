@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Hub Pro</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 500px; background: white; border-radius: 12px; shadow: 0 10px 15px -3px rgba(0,0,0,0.1); padding: 24px; border-top: 5px solid var(--primary); }
+        .step-badge { background: #dbeafe; color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        h2 { margin-top: 15px; font-size: 20px; }
+        p { line-height: 1.6; color: #475569; }
+        .options-grid { display: grid; gap: 10px; margin-top: 20px; }
+        .opt-btn { padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; transition: 0.3s; text-align: left; }
+        .opt-btn:hover { background: #f1f5f9; border-color: var(--primary); }
+        .ack-box { margin-top: 20px; padding: 15px; background: #fff7ed; border-radius: 8px; border: 1px solid #ffedd5; }
+        .next-btn { width: 100%; margin-top: 20px; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; }
+        .next-btn:disabled { background: #94a3b8; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-app">
+    <div class="step-badge" id="step-tag">Step 1</div>
+    <h2 id="instruction-text">Loading instructions...</h2>
+    
+    <div class="options-grid" id="options-container">
+        </div>
+
+    <div class="ack-box" id="ack-section">
+        <label>
+            <input type="checkbox" id="ack-check"> Maine instructions samajh li hain.
+        </label>
+    </div>
+
+    <button class="next-btn" id="next-btn" onclick="nextStep()">Aage Badhein (Next)</button>
+</div>
+
+<script>
+    // 1. APNA APPS SCRIPT URL YAHAN DAALEIN
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbw9TdfYopM7LIAG10BKb9STl1myPHltmFni3NtdYd9tctUj7MEGjbwopOr23JI3_PhZ/exec";
+    
+    let allData = [];
+    let currentStep = 1;
+
+    async function fetchData() {
+        const response = await fetch(SHEET_API_URL);
+        allData = await response.json();
+        renderStep(1);
+    }
+
+    function renderStep(stepNum) {
+        const stepData = allData.find(d => d.step == stepNum);
+        if (!stepData) return;
+
+        document.getElementById('instruction-text').innerText = stepData.instruction;
+        document.getElementById('step-tag').innerText = "Step " + stepNum;
+        
+        // Checkbox aur Next button reset
+        document.getElementById('ack-check').checked = false;
+        document.getElementById('next-btn').style.display = 'block';
+        document.getElementById('next-btn').disabled = true;
+
+        // Options logic (Agar Options column mein kuch hai toh)
+        const optContainer = document.getElementById('options-container');
+        optContainer.innerHTML = "";
+        if(stepData.options) {
+            // Options format: "Yes:2, No:3"
+            const opts = stepData.options.split(',');
+            opts.forEach(o => {
+                const [text, nextS] = o.split(':');
+                const btn = document.createElement('button');
+                btn.className = "opt-btn";
+                btn.innerText = text;
+                btn.onclick = () => { currentStep = nextS.trim(); renderStep(currentStep); };
+                optContainer.appendChild(btn);
+            });
+            document.getElementById('ack-section').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+        } else {
+            document.getElementById('ack-section').style.display = 'block';
+        }
+    }
+
+    document.getElementById('ack-check').onchange = function() {
+        document.getElementById('next-btn').disabled = !this.checked;
+    };
+
+    function nextStep() {
+        currentStep++;
+        renderStep(currentStep);
+    }
+
+    fetchData();
+</script>
+
+</body>
+</html>
