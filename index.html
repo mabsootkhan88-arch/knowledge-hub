@@ -6,28 +6,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --danger: #ef4444; --bg: #ffffff; --text-main: #1e293b; --text-sub: #64748b; --warn: #f59e0b; }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 15px; background: var(--bg); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; overflow: hidden; }
-        
-        .header { font-weight: 700; font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px; color: var(--primary); display: flex; justify-content: space-between; }
-        
-        .instruction { font-size: 14px; line-height: 1.6; margin: 15px 0; min-height: 60px; overflow-y: auto; }
-        .opt-grid { display: grid; gap: 10px; }
-        .opt-btn { padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; cursor: pointer; text-align: left; font-size: 13px; font-weight: 500; transition: 0.2s; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 10px; background: var(--bg); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; overflow: hidden; }
+        .header { font-weight: 700; font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px; color: var(--primary); display: flex; justify-content: space-between; }
+        .instruction { font-size: 13px; line-height: 1.5; margin: 10px 0; flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+        .opt-grid { display: grid; gap: 8px; margin-top: auto; }
+        .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; cursor: pointer; text-align: left; font-size: 12px; font-weight: 500; }
         .opt-btn:hover { background: #eff6ff; border-color: var(--primary); color: var(--primary); }
-
-        .next-btn { width: 100%; margin-top: 15px; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .next-btn { width: 100%; margin-top: 10px; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .next-btn:disabled { background: #cbd5e1; }
-
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 25px; box-sizing: border-box; }
         
-        .announcement-box { width: 100%; max-width: 350px; background: #fffbeb; border: 2px solid var(--warn); border-radius: 12px; padding: 20px; text-align: left; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .ann-header { color: #92400e; font-weight: 700; font-size: 16px; margin-bottom: 12px; text-transform: uppercase; }
-        .ann-body { color: #92400e; font-size: 13px; line-height: 1.5; margin-bottom: 20px; white-space: pre-wrap; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px; box-sizing: border-box; }
         
-        .status-icon { font-size: 48px; margin-bottom: 20px; }
-        .status-title { font-size: 20px; font-weight: 700; color: var(--danger); margin-bottom: 10px; }
-        .status-desc { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
-        .reset-link { font-size: 12px; color: var(--primary); text-decoration: underline; cursor: pointer; background: none; border: none; margin-top: 20px; }
+        /* DYNAMIC & SCROLLABLE ANNOUNCEMENT BOX */
+        .announcement-box { 
+            width: 100%; max-height: 85vh; background: #fffbeb; border: 2px solid var(--warn); border-radius: 12px; 
+            display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden;
+        }
+        .ann-header { background: var(--warn); color: white; padding: 12px; font-weight: 700; font-size: 14px; text-transform: uppercase; }
+        .ann-scroll-area { padding: 15px; overflow-y: auto; text-align: left; color: #92400e; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+        .ann-footer { padding: 10px; background: #fef3c7; border-top: 1px solid #fde68a; }
+        
+        .status-icon { font-size: 40px; margin-bottom: 10px; }
+        .status-title { font-size: 18px; font-weight: 700; color: var(--danger); }
+        .reset-link { font-size: 11px; color: var(--primary); text-decoration: underline; cursor: pointer; background: none; border: none; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -36,46 +37,52 @@
     <div id="status-content">
         <div class="status-icon">🔄</div>
         <div class="status-title" style="color: var(--primary);">Authenticating</div>
-        <div class="status-desc">Verifying credentials...</div>
     </div>
 </div>
 
 <div class="header">
     <span>KNOWLEDGE HUB PRO</span>
-    <span id="step-id" style="color: var(--text-sub); font-size: 11px;">v1.0</span>
+    <span id="step-id" style="color: var(--text-sub); font-size: 10px;">v1.0</span>
 </div>
 
-<div id="main-content">
+<div id="main-content" style="display: flex; flex-direction: column; height: 100%;">
     <div class="instruction" id="instr-text">Loading...</div>
     <div id="opt-container" class="opt-grid"></div>
-    <div id="nav-area" style="display:none; margin-top: 15px;">
-        <label style="font-size: 12px; cursor: pointer; display: flex; align-items: center;">
-            <input type="checkbox" id="ack-check" style="margin-right: 8px;"> I have understood this step.
-        </label>
+    <div id="nav-area" style="display:none; margin-top: 10px;">
+        <label style="font-size: 11px; cursor: pointer; display: block; margin-bottom: 5px;"><input type="checkbox" id="ack-check"> I have understood this step.</label>
         <button class="next-btn" id="next-btn" disabled onclick="goNext()">Continue</button>
     </div>
 </div>
 
 <script>
-    // 1. APNA APPS SCRIPT URL YAHAN DALEIN
-    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwgWEZv2nKZEpPyMMOn2hqfr2pge3f_VFhMtZds9x0w8tHhGOWyHxFkOSHtm1tFu3VG/exec";
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbz_ZBmQS3ourBMt5sza0EL-OR3x28vX7kZhFOUV9ruKRDfkTf7t_8SFbxYWzQgee1no/exec";
     const DOMAIN = "@v5global.co.in";
-    const CURRENT_VERSION = "1.0"; 
 
     let masterData = [];
     let currentStep = 1;
 
     function logout() { localStorage.clear(); location.reload(); }
 
+    async function ackUpdate(version) {
+        const email = localStorage.getItem("user_email");
+        // Log to Sheet alag se
+        await fetch(SHEET_API_URL, {
+            method: "POST",
+            body: JSON.stringify({ email: email, action: "ACK_UPDATE", version: version })
+        });
+        localStorage.setItem("acked_version", version);
+        location.reload(); 
+    }
+
     window.onload = async () => {
         let email = localStorage.getItem("user_email");
         if (!email) {
-            email = prompt("Enter your @v5global.co.in email:");
+            email = prompt("Enter official email:");
             if (email && email.toLowerCase().endsWith(DOMAIN)) {
                 localStorage.setItem("user_email", email.toLowerCase().trim());
                 location.reload();
             } else {
-                showStatus("UNAUTHORIZED", "Please use company email.<br><button class='reset-link' onclick='logout()'>Try Again</button>");
+                showStatus("UNAUTHORIZED", "Official ID required.", "🚫");
                 return;
             }
         }
@@ -86,35 +93,25 @@
         try {
             const res = await fetch(SHEET_API_URL, { redirect: 'follow' });
             const rawData = await res.json();
-            const userEmail = localStorage.getItem("user_email").toLowerCase().trim();
+            const userEmail = localStorage.getItem("user_email");
 
-            // USER AUTHORIZATION CHECK
             const userEntry = rawData.users.find(u => u.email === userEmail);
-            if (!userEntry || userEntry.status.toLowerCase().trim() !== "active") {
-                showStatus("ACCESS REVOKED", `Account: <b>${userEmail}</b><br>Please reach out to your POC.<br><button class='reset-link' onclick='logout()'>Switch Account</button>`);
+            if (!userEntry || userEntry.status.toLowerCase() !== "active") {
+                showStatus("ACCESS REVOKED", "Contact POC.", "🚫");
                 return;
             }
 
-            // URGENT ANNOUNCEMENT BOARD
-            if (parseFloat(rawData.latestVersion) > parseFloat(CURRENT_VERSION)) {
+            const lastAcked = localStorage.getItem("acked_version");
+            if (rawData.latestVersion !== lastAcked && rawData.latestVersion !== "1.0") {
                 showAnnouncement(rawData.latestVersion, rawData.announcement);
                 return;
-            }
-
-            // DAILY HEARTBEAT LOGGING
-            const today = new Date().toDateString();
-            if (localStorage.getItem("last_heartbeat") !== today) {
-                fetch(SHEET_API_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ email: userEmail, action: "Active Login", version: CURRENT_VERSION })
-                }).then(() => localStorage.setItem("last_heartbeat", today));
             }
 
             masterData = rawData.steps;
             document.getElementById('overlay').style.display = 'none';
             renderStep(1);
         } catch (e) {
-            showStatus("ERROR", "Connection failed.<br><button class='reset-link' onclick='logout()'>Reset</button>", "❌");
+            showStatus("ERROR", "Connection failed.", "❌");
         }
     }
 
@@ -122,13 +119,15 @@
         document.getElementById('status-content').innerHTML = `
             <div class="announcement-box">
                 <div class="ann-header">⚠️ URGENT UPDATE (v${ver})</div>
-                <div class="ann-body">${msg || "Guidelines have been updated. Please review before proceeding."}</div>
-                <button onclick="location.reload()" style="width:100%; padding:12px; background:var(--warn); color:white; border:none; border-radius:6px; font-weight:700; cursor:pointer;">I HAVE READ & UNDERSTOOD</button>
+                <div class="ann-scroll-area">${msg}</div>
+                <div class="ann-footer">
+                    <button onclick="ackUpdate('${ver}')" style="width:100%; padding:12px; background:var(--warn); color:white; border:none; border-radius:6px; font-weight:700; cursor:pointer;">I HAVE READ & UNDERSTOOD</button>
+                </div>
             </div>`;
     }
 
-    function showStatus(title, desc, icon = "🚫") {
-        document.getElementById('status-content').innerHTML = `<div class="status-icon">${icon}</div><div class="status-title">${title}</div><div class="status-desc">${desc}</div>`;
+    function showStatus(title, desc, icon) {
+        document.getElementById('status-content').innerHTML = `<div class="status-icon">${icon}</div><div class="status-title">${title}</div><p>${desc}</p><button class='reset-link' onclick='logout()'>Switch Email</button>`;
     }
 
     function renderStep(sid) {
@@ -161,7 +160,7 @@
 
     document.getElementById('ack-check').onchange = function() { document.getElementById('next-btn').disabled = !this.checked; };
     function goNext() { renderStep(parseInt(currentStep) + 1); }
-    function finish() { document.getElementById('main-content').innerHTML = "<div style='text-align:center; padding:30px;'><div style='font-size:40px;'>✅</div><h3>Complete</h3><button onclick='location.reload()' style='padding:10px 20px; border-radius:6px; border:1px solid #ccc; cursor:pointer;'>Restart Flow</button></div>"; }
+    function finish() { document.getElementById('main-content').innerHTML = "<div style='text-align:center; padding:20px;'><h3>✅ Task Finished</h3><button onclick='location.reload()'>Restart</button></div>"; }
 </script>
 </body>
 </html>
