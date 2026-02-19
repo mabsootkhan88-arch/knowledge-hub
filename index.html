@@ -4,85 +4,86 @@
     <meta charset="UTF-8">
     <title>Knowledge Hub Pro</title>
     <style>
-        :root { --primary: #2563eb; --danger: #ef4444; --bg: #f8fafc; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 12px; width: 320px; min-height: 480px; display: flex; flex-direction: column; background: var(--bg); color: #1e293b; overflow-x: hidden; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 12px; width: 320px; min-height: 520px; display: flex; flex-direction: column; background: var(--bg); }
         
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .nav-group { display: flex; gap: 8px; }
-        .nav-btn { padding: 6px 12px; border: none; border-radius: 6px; background: white; color: #64748b; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-        .nav-btn:hover { background: #f1f5f9; }
-
-        .instr-card { background: white; padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-size: 14px; line-height: 1.6; border-left: 4px solid var(--primary); }
+        /* Navigation */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .back-link { cursor: pointer; color: #64748b; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 4px; border: 1px solid #e2e8f0; padding: 5px 10px; border-radius: 6px; background: white; }
         
-        .opt-container { display: flex; flex-direction: column; gap: 10px; }
-        .opt-btn { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; background: white; text-align: left; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 600; color: #334155; display: flex; justify-content: space-between; align-items: center; }
-        .opt-btn:hover { border-color: var(--primary); background: #eff6ff; color: var(--primary); transform: translateX(4px); }
-        .opt-btn span { font-size: 16px; opacity: 0.5; }
+        /* Main Display */
+        .display-card { background: white; padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 4px solid var(--primary); font-size: 14px; line-height: 1.6; color: var(--text); }
+        
+        /* Buttons List */
+        .btn-list { display: flex; flex-direction: column; gap: 10px; }
+        .choice-btn { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; background: white; text-align: left; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; }
+        .choice-btn:hover { border-color: var(--primary); background: #eff6ff; transform: translateX(4px); }
 
-        .admin-panel { display: none; background: #0f172a; color: white; padding: 15px; border-radius: 12px; margin-top: 15px; }
-        input, textarea { width: 100%; padding: 8px; margin: 6px 0; border-radius: 6px; border: none; box-sizing: border-box; font-size: 12px; }
-        .admin-btn-row { display: flex; gap: 8px; margin-top: 8px; }
-        .adm-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
+        /* Admin Section */
+        #admin-panel { display: none; background: #0f172a; color: white; padding: 15px; border-radius: 12px; margin-top: 20px; font-size: 11px; }
+        input, textarea { width: 100%; padding: 8px; margin: 6px 0; border-radius: 6px; border: none; box-sizing: border-box; }
+        .admin-btns { display: flex; gap: 8px; margin-top: 10px; }
+        .adm-save { background: #10b981; flex: 1; border: none; color: white; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .adm-del { background: #ef4444; flex: 1; border: none; color: white; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="top-bar">
-    <div class="nav-group">
-        <button class="nav-btn" onclick="goBack()">◀ BACK</button>
-        <button class="nav-btn" onclick="resetFlow()" style="color:var(--danger)">🔄 RESET</button>
+<div class="header">
+    <div class="back-link" onclick="goBack()"><span>&lt;</span> BACK</div>
+    <div style="display:flex; gap:12px; align-items:center;">
+        <span onclick="location.reload()" style="cursor:pointer; color:#ef4444; font-size:16px;">🔄</span>
+        <span id="gear" style="cursor:pointer; font-size:18px;">⚙️</span>
     </div>
-    <span id="admin-gear" style="cursor:pointer; font-size:18px;">⚙️</span>
 </div>
 
-<div class="instr-card" id="instr-text">Loading instructions...</div>
-<div class="opt-container" id="opt-container"></div>
+<div class="display-card" id="main-text">Loading...</div>
+<div class="btn-list" id="btn-container"></div>
 
-<div id="admin-panel" class="admin-panel">
-    <div style="font-weight:bold; margin-bottom:10px; border-bottom:1px solid #334155; padding-bottom:5px;">ADMIN CONTROLS</div>
-    <input id="in-id" type="number" placeholder="Step ID">
-    <textarea id="in-instr" rows="3" placeholder="Instruction (Supports <b>, <i>, <br>)"></textarea>
-    <input id="in-opts" placeholder="Buttons (Label:ID, Label:ID)">
-    <div class="admin-btn-row">
-        <button class="adm-btn" onclick="addStep()" style="background:#10b981">ADD/UPDATE</button>
-        <button class="adm-btn" onclick="delStep()" style="background:var(--danger)">DELETE</button>
+<div id="admin-panel">
+    <div style="font-weight:bold; border-bottom:1px solid #334155; padding-bottom:5px; margin-bottom:10px;">ADMIN: ADD CONTENT / OPTIONS</div>
+    <input id="in-id" type="number" placeholder="Step ID (e.g., 1 for MDND)">
+    <textarea id="in-content" rows="3" placeholder="Instruction or Final Resolution"></textarea>
+    <input id="in-opts" placeholder="Buttons (Label:ID, Label:ID) - Keep blank for Resolution">
+    <div class="admin-btns">
+        <button class="adm-save" onclick="handleSave()">SAVE / UPDATE</button>
+        <button class="adm-del" onclick="handleDelete()">DELETE</button>
     </div>
+    <p style="color:#94a3b8; font-size:9px; margin-top:10px;">*Agar is step ke baad aur options dene hain toh 'Buttons' bhariye, warna use khali chhodiye Resolution ke liye.</p>
 </div>
 
 <script>
-    const SHEET_API = "https://script.google.com/macros/s/AKfycbxHYgj7hoG7Re3MDlvF_-b14c-kcqACGtWWMY0Xkyl0sLM3Bodu00lh1ZYnYyz4GfQ7/exec";
-    let masterSteps = [];
+    const API = "https://script.google.com/macros/s/AKfycbxHYgj7hoG7Re3MDlvF_-b14c-kcqACGtWWMY0Xkyl0sLM3Bodu00lh1ZYnYyz4GfQ7/exec";
+    let masterData = [];
     let history = [];
 
     window.onload = async () => {
-        try {
-            const res = await fetch(SHEET_API);
-            const data = await res.json();
-            masterSteps = data.steps;
-            
-            const user = data.users.find(u => u.email === localStorage.getItem("user_email"));
-            if(user?.role !== "Admin") document.getElementById('admin-gear').style.display = "none";
-            
-            render(1);
-        } catch (e) { document.getElementById('instr-text').innerText = "Connection Error."; }
+        const res = await fetch(API);
+        const data = await res.json();
+        masterData = data.steps;
+        
+        const user = data.users.find(u => u.email === localStorage.getItem("user_email"));
+        if(user?.role !== "Admin") document.getElementById('gear').style.display = "none";
+        
+        render(1); // Starting with MDND (ID 1)
     };
 
     function render(sid, isBack = false) {
-        const step = masterSteps.find(s => s.step == sid);
-        if(!step) return; // Silent stop if ID not found
-        
+        const step = masterData.find(s => s.step == sid);
+        if(!step) return;
+
         if(!isBack) history.push(sid);
         
-        document.getElementById('instr-text').innerHTML = step.instruction;
-        const cont = document.getElementById('opt-container');
+        document.getElementById('main-text').innerHTML = step.instruction;
+        const cont = document.getElementById('btn-container');
         cont.innerHTML = "";
-        
+
         if(step.options && step.options.trim() !== "") {
             step.options.split(',').forEach(o => {
                 const parts = o.split(':');
                 if(parts.length === 2) {
                     const btn = document.createElement('button');
-                    btn.className = "opt-btn";
+                    btn.className = "choice-btn";
                     btn.innerHTML = `<div>${parts[0].trim()}</div> <span>›</span>`;
                     btn.onclick = () => render(parts[1].trim());
                     cont.appendChild(btn);
@@ -93,39 +94,32 @@
 
     function goBack() {
         if(history.length > 1) {
-            history.pop(); 
-            const prev = history.pop(); 
-            render(prev);
+            history.pop();
+            render(history.pop());
         }
     }
 
-    function resetFlow() {
-        history = [];
-        render(1);
-    }
-
-    document.getElementById('admin-gear').onclick = () => {
+    document.getElementById('gear').onclick = () => {
         const p = document.getElementById('admin-panel');
         p.style.display = p.style.display === "block" ? "none" : "block";
     };
 
-    async function addStep() {
-        const data = {
+    async function handleSave() {
+        const body = {
             action: "ADD_STEP",
             stepId: document.getElementById('in-id').value,
-            instr: document.getElementById('in-instr').value,
+            instr: document.getElementById('in-content').value,
             opts: document.getElementById('in-opts').value
         };
-        await fetch(SHEET_API, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) });
-        alert("Step Updated!"); location.reload();
+        await fetch(API, { method: "POST", mode: 'no-cors', body: JSON.stringify(body) });
+        alert("Synced!"); location.reload();
     }
 
-    async function delStep() {
-        const data = { action: "DELETE_STEP", stepId: document.getElementById('in-id').value };
-        await fetch(SHEET_API, { method: "POST", mode: 'no-cors', body: JSON.stringify(data) });
-        alert("Step Deleted!"); location.reload();
+    async function handleDelete() {
+        const body = { action: "DELETE_STEP", stepId: document.getElementById('in-id').value };
+        await fetch(API, { method: "POST", mode: 'no-cors', body: JSON.stringify(body) });
+        alert("Deleted!"); location.reload();
     }
 </script>
 </body>
 </html>
-
