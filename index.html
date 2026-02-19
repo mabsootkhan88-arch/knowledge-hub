@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <title>Knowledge Hub Mini</title>
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; }
-        .header { font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px; color: #2563eb; display: flex; justify-content: space-between; }
-        .instruction { font-size: 14px; margin: 10px 0; min-height: 40px; }
-        .opt-grid { display: grid; gap: 5px; }
-        .opt-btn { padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9; cursor: pointer; text-align: left; }
-        .next-btn { width: 100%; margin-top: 10px; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .next-btn:disabled { background: #ccc; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; color: #1e293b; }
+        .header { font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px; color: #2563eb; display: flex; justify-content: space-between; font-size: 14px; }
+        .instruction { font-size: 14px; line-height: 1.5; margin: 10px 0; min-height: 40px; }
+        .opt-grid { display: grid; gap: 8px; }
+        .opt-btn { padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; cursor: pointer; text-align: left; font-size: 12px; }
+        .opt-btn:hover { background: #eff6ff; border-color: #2563eb; }
+        .next-btn { width: 100%; margin-top: 10px; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .next-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div id="overlay">
-    <div id="status-text">Authenticating Advisor...</div>
+    <div id="status-text">Verifying Access...</div>
 </div>
 
 <div class="header">
@@ -26,16 +27,15 @@
 </div>
 
 <div id="main-content">
-    <div class="instruction" id="instr-text">Loading instructions...</div>
+    <div class="instruction" id="instr-text">Loading...</div>
     <div class="opt-grid" id="opt-container"></div>
     <div id="nav-area" style="display:none; margin-top:10px;">
-        <label style="font-size: 12px; cursor: pointer;"><input type="checkbox" id="ack-check"> I Acknowledge this step</label>
+        <label style="font-size: 12px; cursor: pointer;"><input type="checkbox" id="ack-check"> I have read and understood.</label>
         <button class="next-btn" id="next-btn" disabled onclick="goNext()">Next Step</button>
     </div>
 </div>
 
 <script>
-    // 1. APNA NEW URL YAHAN DALEIN
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxZzcjIJEE-I__P4ThslVpyLaQi62SynNbepZMfEMJLYutRLtkaI3ftazx7u24vvHAQ/exec";
     const DOMAIN = "@v5global.co.in";
     const CURRENT_VERSION = "1.0"; 
@@ -46,11 +46,11 @@
     window.onload = async () => {
         let email = localStorage.getItem("user_email");
         if (!email) {
-            email = prompt("Enter your @v5global.co.in email:");
+            email = prompt("Enter your @v5global.co.in email to start:");
             if (email && email.toLowerCase().endsWith(DOMAIN)) {
                 localStorage.setItem("user_email", email.toLowerCase().trim());
             } else {
-                document.getElementById('status-text').innerHTML = "<h3 style='color:red;'>Access Denied!</h3>Official domain required.";
+                document.getElementById('status-text').innerHTML = "<h3 style='color:red;'>Unauthorized!</h3>Please use your official email.";
                 return;
             }
         }
@@ -59,27 +59,30 @@
 
     async function loadData() {
         try {
-            // Naya data fetch karna
             const res = await fetch(SHEET_API_URL, { redirect: 'follow' });
             const rawData = await res.json();
             const userEmail = localStorage.getItem("user_email").toLowerCase().trim();
 
-            console.log("Users in Sheet:", rawData.users); // Debugging
-
-            // 1. KILL SWITCH (Strict Check)
+            // --- WHITELIST LOGIC ---
+            // Pehle check karein ki kya ye email 'Users' tab mein hai?
             const userEntry = rawData.users.find(u => u.email === userEmail);
             
-            // Agar user list mein nahi hai YA status 'Active' nahi hai
-            if (!userEntry || userEntry.status.toLowerCase().trim() !== "active") {
+            if (!userEntry) {
+                // Agar email list mein hi nahi hai
                 document.getElementById('status-text').innerHTML = 
-                    "<div style='color:red;'><h2>🚫 ACCESS REVOKED</h2><p>Aapka account Inactive hai.<br>Manager se sampark karein.</p></div>";
+                    "<div style='color:red;'><h2>🚫 ACCESS DENIED</h2><p>Aapka email registered nahi hai.<br>Admin se apna email add karwayein.</p></div>";
+                return;
+            } else if (userEntry.status.toLowerCase().trim() !== "active") {
+                // Agar email hai par 'Inactive' hai
+                document.getElementById('status-text').innerHTML = 
+                    "<div style='color:red;'><h2>🚫 ACCOUNT INACTIVE</h2><p>Aapka access band kar diya gaya hai.</p></div>";
                 return;
             }
 
-            // 2. VERSION SYNC
+            // --- VERSION CHECK ---
             if (parseFloat(rawData.latestVersion) > parseFloat(CURRENT_VERSION)) {
                 document.getElementById('status-text').innerHTML = 
-                    "<h2>⚠️ Update Required</h2><p>New version v"+rawData.latestVersion+" is live.</p><button onclick='location.reload()' style='padding:10px;'>Refresh Now</button>";
+                    "<h2>⚠️ Update Available</h2><p>Nayi guidelines load karne ke liye refresh karein.</p><button onclick='location.reload()' style='padding:10px 20px; cursor:pointer;'>Update Now</button>";
                 return;
             }
 
@@ -88,7 +91,7 @@
             renderStep(1);
         } catch (e) {
             console.error(e);
-            document.getElementById('status-text').innerHTML = "Database Error!<br>Check Sheet Tab Names.";
+            document.getElementById('status-text').innerHTML = "Database Connection Error!<br>Check your internet or API URL.";
         }
     }
 
@@ -126,7 +129,7 @@
     };
 
     function goNext() { renderStep(parseInt(currentStep) + 1); }
-    function finish() { document.getElementById('main-content').innerHTML = "<h3>✅ Action Complete!</h3>"; }
+    function finish() { document.getElementById('main-content').innerHTML = "<div style='text-align:center; padding:20px;'><h3>✅ Action Complete!</h3><button onclick='location.reload()'>Restart</button></div>"; }
 </script>
 </body>
 </html>
